@@ -3,3 +3,4 @@ pandas
 streamlit
 pylinac
 plotly
+google-cloud-firestore

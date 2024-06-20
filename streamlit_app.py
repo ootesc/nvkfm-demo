@@ -8,7 +8,7 @@ import pydicom
 import numpy as np
 import pandas as pd
 from pylinac import WinstonLutz
-
+from google.cloud import firestore
 st.title('WinstonLutz demo')
 
 st.header('Upload DICOMs')
@@ -38,6 +38,7 @@ option = st.selectbox(
     ('', 'Elekta 4mm with kV Flexmaps Stored Beam'))
 
 bb_size_mm = 0
+machine_id = ''
 if option == '':
     st.stop()
 elif option == 'Elekta 4mm with kV Flexmaps Stored Beam':
@@ -45,6 +46,8 @@ elif option == 'Elekta 4mm with kV Flexmaps Stored Beam':
         st.warning('Please upload 8 images!')
         st.stop()
     else:
+        # Get iview machine id from series instance UID
+        machine_id = dicom_datasets[0].SeriesInstanceUID.split(".")[4]
         dicom_datasets[0].GantryAngle = 180.0
         dicom_datasets[0].BeamLimitingDeviceAngle = 270.0
         dicom_datasets[1].GantryAngle = 180.0
@@ -104,7 +107,11 @@ st.divider()
 st.header('Analyse') 
 
 # Analyze
-wl.analyze(bb_size_mm=bb_size_mm)
+try:
+    wl.analyze(bb_size_mm=bb_size_mm)
+except Exception as e:
+    st.exception(e)
+    st.stop()
 
 # Default analyse rapport
 st.code(wl.results())
@@ -113,4 +120,17 @@ st.code(wl.results())
 wl_results = wl.results_data()
 
 st.divider()
-st.header('Upload and share') 
+st.header('Upload and share')
+
+# Authenticate to Firestore with the JSON account key.
+db = firestore.Client.from_service_account_info(st.secrets['connections']['nvkfm-demo'])
+
+# Create a reference to the Google post.
+doc_ref = db.collection("winstonlutz").document("test1")
+
+# Then get the data at that reference.
+doc = doc_ref.get()
+
+# Let's see what we got!
+st.write("The id is: ", doc.id)
+st.write("The contents are: ", doc.to_dict())
