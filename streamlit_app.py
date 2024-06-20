@@ -93,7 +93,7 @@ with tempfile.TemporaryDirectory() as tmp_dir_path:
         pydicom.filewriter.write_file(tmp_file_path, image) 
 
     # Analyze DICOMs
-    wl = pylinac.WinstonLutz(tmp_dir_path) 
+    wl = WinstonLutz(tmp_dir_path) 
 
 st.divider()
 
