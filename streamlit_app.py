@@ -7,7 +7,7 @@ from datetime import datetime
 import pydicom
 import numpy as np
 import pandas as pd
-import pylinac.WinstonLutz
+from pylinac import WinstonLutz
 
 st.title('WinstonLutz demo')
 
