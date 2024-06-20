@@ -79,8 +79,8 @@ for index, image in enumerate(dicom_datasets):
     overview_datetime = datetime(overview_year, overview_month, overview_day, overview_hour, overview_minute, overview_second)
 
     overview_filename = str(dicom_files[index].name)
-    overview_gantryangle = str(dicom_datasets[index].GantryAngle)
-    overview_collimatorangle = str(dicom_datasets[index].BeamLimitingDeviceAngle)
+    overview_gantryangle = dicom_datasets[index].get('GantryAngle', None)
+    overview_collimatorangle = dicom_datasets[index].get('BeamLimitingDeviceAngle', None)
     overview_dataframe.loc[len(overview_dataframe)] = [overview_filename, overview_datetime, overview_gantryangle, overview_collimatorangle]
 
 st.dataframe(overview_dataframe)
