@@ -11,6 +11,8 @@ from pylinac import WinstonLutz
 
 st.title('WinstonLutz demo')
 
+st.header('Upload DICOMs')
+
 # Upload files
 dicom_files = st.file_uploader("Select DICOMs to be analysed", accept_multiple_files=True)
 dicom_files.sort(key=lambda x: x.name)
@@ -27,15 +29,17 @@ st.write(f"{len(dicom_datasets)} images uploaded")
 if len(dicom_datasets) == 0:
     st.stop()
 
-# Add gantry angles
 st.divider()
+st.header('Setup selection')
+
+# Select setup
 option = st.selectbox(
     'Select setup option',
-    ('Do not add angles', 'Elekta 4mm with kV Flexmaps Stored Beam'))
+    ('', 'Elekta 4mm with kV Flexmaps Stored Beam'))
 
 bb_size_mm = 0
-if option == 'Do not add angles':
-    pass
+if option == '':
+    st.stop()
 elif option == 'Elekta 4mm with kV Flexmaps Stored Beam':
     if len(dicom_datasets) != 8:
         st.warning('Please upload 8 images!')
@@ -61,13 +65,14 @@ elif option == 'Elekta 4mm with kV Flexmaps Stored Beam':
 
 # TODO other setups
 else:
-    pass
+    st.stop()
 
 # Overview
-st.write('Overview DICOMs:')
+st.divider()
+st.header('Overview DICOMs')
 
 # Create overview table
-columns=['filename', 'date', 'gantryangle', 'collimatorangle']
+columns=['filename', 'datetime', 'gantryangle', 'collimatorangle']
 overview_dataframe = pd.DataFrame(columns=columns)
 for index, image in enumerate(dicom_datasets):
     overview_year = int(dicom_datasets[index].StudyDate[0:4])
@@ -96,13 +101,16 @@ with tempfile.TemporaryDirectory() as tmp_dir_path:
     wl = WinstonLutz(tmp_dir_path) 
 
 st.divider()
+st.header('Analyse') 
 
 # Analyze
 wl.analyze(bb_size_mm=bb_size_mm)
 
 # Default analyse rapport
-st.header('Default analyse rapport') 
 st.code(wl.results())
 
 # 
 wl_results = wl.results_data()
+
+st.divider()
+st.header('Upload and share') 
